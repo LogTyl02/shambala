@@ -151,7 +151,7 @@ class GameView:
 		text = " ' Press SPACE BAR to Start ' "
 		textIMG = font.render(text, 1, (255, 0, 0))
 		self.background.blit(textImg, (0, 0))
-		self.window.blit(self.background, (0,0))
+		self.display_surf.blit(self.background, (0,0))
 		pygame.display.flip()
 
 		self.back_sprites = pygame.sprite.RenderUpdates()
@@ -160,10 +160,66 @@ class GameView:
 	def show_map(self, game_map):
 		# Clear the screen first
 		self.background.fill(0, 0, 0)
-		self.window.blit(self.background, (0,0))
+		self.display_surf.blit(self.background, (0,0))
 		pygame.display.flip()
 
-		# Use 
+		# Use this square rect as a cursor and go through
+		# the columns and rows and assign the rect
+		# positions of the sector sprites
+		square_rect = pygame.Rect((-128, 10, 128, 128))
+
+		column = 0
+		for sector in game_map.sectors:
+			if column < 3:
+				square_rect = square_rect.move(138, 0)
+			else:
+				column = 0
+				square_rect = square_rect.move( -(138*2), 138)
+			column += 1
+			new_sprite = SectorSprite(sector, self.back_sprites)
+			new_sprite.rect = square_rect
+			new_sprite = None
+
+	def ShowCharacter(self, character):
+		sector = character.sector
+		character_sprite = CharactorSprite(self.front_sprites)
+		sector_sprite = self.GetSectorSprite(sector)
+		character_sprite.rect.center = sector_sprite.rect.center
+
+	def MoveCharacter(self, character):
+		character_sprite = self.GetSectorSprite(character)
+
+		sector = character.sector
+		character_sprite.move_to = sector_sprite.rect.center
+
+	def GetCharacterSprite(self, character):
+		for s in self.front_sprites:
+			return s
+		return None
+
+	def Notify(self, event):
+		if is_instance(event, tick_event):
+			# DRAW EVERYTHING
+			self.back_sprites.clear(self.display_surf, self.background)
+			self.front_sprites.clear(self.display_surf, self.background)
+
+			self.back_sprites.update()
+			self.front_sprites.update()
+
+			dirty_rects1 = self.back_sprites.draw(self.display_surf)
+			dirty_rects2 = self.front_sprites.draw(self.display_surf)
+
+			dirty_rects = dirty_rects1 + dirty_rects2
+			pygame.display.update(dirty_rects)
+
+		elif is_instance(event, CharacterPlaceEvent):
+			self.ShowCharacter(event.character)
+
+		elif is_instance(event, CharacterMoveEvent):
+			self.MoveCharacter(event.character)
+
+
+# ------------------------------------------------------------------------------			
 
 class Game:
 	def __init__(self):
