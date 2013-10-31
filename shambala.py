@@ -75,7 +75,7 @@ class KeyboardController:
 		self.ev_manager = ev_manager
 		self.ev_manager.register_listener(self)
 
-	def Notify(self, event):
+	def notify(self, event):
 		if is_instance(event, TickEvent):
 			# Handle Input Events
 			for event in pygame.event.get():
@@ -91,6 +91,43 @@ class KeyboardController:
 					self.ev_manager.Post(ev)
 
 
+# ------------------------------------------------------------------------------
+
+class CPUSpinnerController:
+	"""No idea what the fuck this is."""
+	def __init__(self, evManager):
+		self.evManager = evManager
+		self.evManager.register_listener(self)
+
+		self.keep_going = 1
+
+	def run(self):
+		while self.keep_going:
+			event = tick_event()
+			self.evManager.Post(event)
+
+	def notify(self, event):
+		if is_instance(event, QuitEvent):
+			# This will stop the while loop
+			self.keep_going = False
+
+# ------------------------------------------------------------------------------
+
+class CharacterSprite(pygame.sprite.Sprite):
+	def __init__(self, group=None):
+		pygame.sprite.Sprite.__init__(self, group)
+
+		character_surf = pygame.Surface((64,64)) # Arbitrary sprite size for now.
+		character_surf = character_surf.convert_alpha()
+		character_surf.fill((0,0,0,0)) # Transparent for now.
+		pygame.draw.circle( character_surf, (255, 0, 0), (32, 32), 32) # Replace these magic numbers with color codes later.
+		self.image = character_surf
+		self.rect = character_surf.get_rect()
+
+	def update(self):
+		if self.move_to:
+			self.rect.center = self.move_to
+			self.move_to = None
 # ------------------------------------------------------------------------------
 
 class Game:
