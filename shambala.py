@@ -1,3 +1,10 @@
+####
+##	Shambala, An Indian Journey
+##	Tyler Logan, 2013
+##  
+##  Much of the current code structure stolen from
+##  https://github.com/sjbrown/writing_games_tutorial/blob/example1/code_examples/example.py
+
 import pygame, sys
 from pygame.locals import *
 
@@ -130,13 +137,37 @@ class CharacterSprite(pygame.sprite.Sprite):
 			self.move_to = None
 # ------------------------------------------------------------------------------
 
+class GameView:
+	def __init__(self, evManager):
+		self.evManager = evManager
+		self.evManager.register_listener(self)
+		self.size = self.width, self.height = 800, 600
+
+		pygame.init()
+		self.display_surf = pygame.display.set_mode(self.size, pygame.HWSURFACE)
+		pygame.display.set_caption('Shambala')
+		self.background.fill(0, 0 , 0) # Change to a color code later
+		font = pygame.font.Font(None, 30)
+		text = " ' Press SPACE BAR to Start ' "
+		textIMG = font.render(text, 1, (255, 0, 0))
+		self.background.blit(textImg, (0, 0))
+		self.window.blit(self.background, (0,0))
+		pygame.display.flip()
+
+		self.back_sprites = pygame.sprite.RenderUpdates()
+		self.front_sprites = pygame.sprite.RenderUpdates()
+
+	def show_map(self, game_map):
+		# Clear the screen first
+		self.background.fill(0, 0, 0)
+		self.window.blit(self.background, (0,0))
+		pygame.display.flip()
+
+		# Use 
+
 class Game:
 	def __init__(self):
 		self.running = True
-		self.state = State.menu
-		self.clock = pygame.time.Clock()
-		self.display_surf = None
-		self.size = self.width, self.height = 800, 600
 
 	def terminate(self):
 		pygame.quit()
